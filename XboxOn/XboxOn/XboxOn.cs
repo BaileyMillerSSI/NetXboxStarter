@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace XboxOn
+namespace XboxStarter
 {
     public static class XboxOn
     {
@@ -28,13 +26,15 @@ namespace XboxOn
 
         public static void PowerOnXboxOne()
         {
-            var XBOX_POWER = "dd02001300000010";
+            const String XBOX_POWER = "dd02001300000010";
 
             var endPoint = new IPEndPoint(IPAddress.Any, 0);
 
 
-            var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            s.Blocking = false;
+            var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+            {
+                Blocking = false
+            };
             s.Bind(endPoint);
 
             s.Connect(Endpoint);
@@ -45,7 +45,7 @@ namespace XboxOn
             for (int x = 0; x < SendAttempts; x++)
             {
                 s.Send(power_packet.ToArray());
-                Thread.Sleep(TimeSpan.FromSeconds(.5));
+                //Thread.Sleep(TimeSpan.FromMilliseconds(500));
             }
 
 
@@ -59,11 +59,12 @@ namespace XboxOn
             });
         }
 
-        public static void ImportSettings(String Ip, String LiveId, int Port = 5050)
+        public static void ImportSettings(String Ip, String LiveId, int SendAttempts = 5, int Port = 5050)
         {
             IpAddress = Ip;
             XboxOn.LiveId = LiveId;
             XboxOn.Port = Port;
+            XboxOn.SendAttempts = SendAttempts;
         }
 
         private static byte[] StringToByteArray(String hex)
